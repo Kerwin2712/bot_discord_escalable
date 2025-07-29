@@ -2,9 +2,9 @@
 import discord
 from discord.ext import commands
 from config import DISCORD_BOT_TOKEN, GUILD_ID
-from main_mod.send_message import send_text_message
-from main_mod.send_resource import send_resource_message
-from main_mod.create_button import create_button_component
+from main_mod.send_message import send_text_message # Asegúrate de que la ruta sea correcta
+from main_mod.send_resource import send_resource_message # Asegúrate de que la ruta sea correcta
+from main_mod.create_button import create_button_component # Asegúrate de que la ruta sea correcta
 
 # Definir los intents que tu bot necesitará.
 # Los intents son un conjunto de eventos de Discord a los que tu bot se suscribirá.
@@ -40,7 +40,19 @@ async def on_ready():
         await bot.tree.sync()
         print("Comandos sincronizados globalmente.")
 
-# Ejemplo de un comando de texto simple
+    # Cargar los módulos de comandos aquí
+    # Asegúrate de que la carpeta 'command_mod' exista y contenga los archivos cmd_*.py
+    # Puedes listar los archivos dinámicamente o cargarlos individualmente
+    try:
+        for filename in os.listdir('./command_mod'):
+            if filename.endswith('.py') and filename.startswith('cmd_'):
+                await bot.load_extension(f'command_mod.{filename[:-3]}')
+                print(f"Módulo cargado: command_mod.{filename[:-3]}")
+    except Exception as e:
+        print(f"Error al cargar módulos de comandos: {e}")
+
+
+# Ejemplo de un comando de texto simple (si no se genera por el script)
 @bot.command(name='hola')
 async def hola_command(ctx):
     """
@@ -60,13 +72,12 @@ async def saludo_slash_command(interaction: discord.Interaction):
 
 # Ejemplo de un comando que envía un recurso (usando la función de send_resource.py)
 @bot.command(name='recurso')
-async def recurso_command(ctx, url: str = "https://www.google.com", filename: str = None):
+async def recurso_command(ctx, url: str):
     """
-    Envía un recurso (URL o archivo).
-    Uso: !recurso [URL] [nombre_archivo]
-    Si no se proporciona URL, usa Google.
+    Envía un recurso (URL de enlace o URL de imagen).
+    Uso: !recurso [URL]
     """
-    await send_resource_message(ctx, url, filename)
+    await send_resource_message(ctx, url)
 
 # Ejemplo de un comando que crea un botón (usando la función de create_button.py)
 @bot.command(name='boton')
@@ -89,14 +100,21 @@ async def boton_command(ctx):
     # Enviar el mensaje con el botón
     await ctx.send("Aquí tienes un botón:", view=view)
 
-# Manejador para la interacción del botón
+# Manejador para la interacción general (botones, slash commands, etc.)
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
+    # Si la interacción es un componente (ej. un botón), ya será manejada por la View
+    # Si es un comando de barra, ya será manejado por bot.tree
+    # No es necesario llamar a bot.process_commands(interaction) aquí,
+    # ya que eso es para comandos basados en mensajes.
     if interaction.type == discord.InteractionType.component:
+        # Aquí puedes añadir lógica específica para botones que no estén en una View
+        # o para depuración. Sin embargo, los botones generados por el script
+        # ya tienen su propio callback en la View.
         if interaction.data['custom_id'] == 'mi_primer_boton':
-            await interaction.response.send_message("¡Has hecho clic en el botón!", ephemeral=True)
-    # Asegúrate de procesar otras interacciones si las tienes
-    await bot.process_commands(interaction)
+            await interaction.response.send_message("¡Has hecho clic en el botón de ejemplo!", ephemeral=True)
+    
+    
 
 
 # Iniciar el bot con el token
@@ -108,4 +126,5 @@ def run_bot():
               "Por favor, asegúrate de que DISCORD_BOT_TOKEN esté en tu archivo .env")
 
 if __name__ == '__main__':
+    import os # Importar os para el listdir
     run_bot()
