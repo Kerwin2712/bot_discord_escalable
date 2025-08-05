@@ -7,8 +7,8 @@ import re
 # --- Configuración de rutas (ajusta si es necesario) ---
 # Asegúrate de que esta ruta sea correcta para tu estructura de proyecto
 # Es decir, la carpeta donde se encuentran send_message.py, send_resource.py, etc.
-MAIN_MOD_DIR = "bot_discord_escalable\main_mod"
-COMMAND_MOD_DIR = "command_mod" # Carpeta para los módulos de comando generados
+MAIN_MOD_DIR = "main_mod"
+COMMAND_MOD_DIR = "bot_discord_escalable\\command_mod" # Carpeta para los módulos de comando generados
 
 # --- Lista de Emojis Predefinidos ---
 # Puedes expandir esta lista con más emojis si lo deseas
@@ -247,8 +247,8 @@ if add_buttons:
         if btn['custom_id'] is not None:
             button_args.append(f'custom_id="{btn["custom_id"]}"')
         
-        # url solo si no es None (es decir, es un botón de enlace)
-        if btn['url'] is not None:
+        # url solo si el estilo es 'link' y la url no es None
+        if btn['style'] == 'discord.ButtonStyle.link' and btn['url'] is not None:
             button_args.append(f'url="{btn["url"]}"')
         
         # emoji solo si no es None
