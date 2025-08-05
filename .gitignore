@@ -1,6 +1,7 @@
 # Entorno virtual de Python
 venv/
 clean_venv/
+bot/
 .env
 
 # Archivos de entorno y variables sensibles
